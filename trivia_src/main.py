@@ -35,7 +35,7 @@ class MainPage(webapp2.RequestHandler):
         
         logged_user.put()
         
-        self.response.out.write('Bazinga!')
+        self.response.out.write('Bazinga!2')
         
         if user:
             self.response.headers['Content-Type'] = 'text/plain'
