@@ -20,6 +20,7 @@ from sets import Set
 
 from google.appengine.api import users
 
+#from appengine_utilities import *
 
 from user import User
 
@@ -30,14 +31,13 @@ class MainPage(webapp2.RequestHandler):
         
         user = users.get_current_user()
         
-        logged_user = User(author = user.nickname(),
-                           email  = 'some_email')
-        
-        logged_user.put()
-        
-        self.response.out.write('Bazinga!2')
+        self.response.out.write('Bazinga!')
         
         if user:
+            logged_user = User(author = user.nickname(),
+                               email  = 'some_email')
+            logged_user.put()
+            
             self.response.headers['Content-Type'] = 'text/plain'
             self.response.out.write('Hello, ' + user.nickname())
         else:
