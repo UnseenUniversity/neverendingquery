@@ -51,11 +51,16 @@ def increase_entity_counter( entity_name ):
 
     Counter.put()
 
-def get_user_entity():
+def get_current_user_entity():
     
     c_user = User.get( db.Key.from_path('User', users.get_current_user().nickname() ) )
     return c_user
         
+def get_user_entity( key_name ):
+
+    c_user = User.get( db.Key.from_path('User', key_name ) )
+    return c_user
+
 
 def user_init( user ):
     
@@ -131,7 +136,7 @@ class QueryTrainer(webapp2.RequestHandler):
             
         new_query.put()
         
-        c_user = get_user_entity()
+        c_user = get_current_user_entity()
         c_user.questions.append(str(q_no))
         c_user.put()
     
@@ -175,7 +180,7 @@ class PlayRandom( webapp2.RequestHandler ):
             
     def post(self):
         
-        c_user = get_user_entity()
+        c_user = get_current_user_entity()
         
         if c_user is None:
             return
@@ -210,14 +215,13 @@ class MainPage(webapp2.RequestHandler):
         
         user = users.get_current_user()
         if user:
-            logged_user = User(key_name = user.nickname(), correct_answers = 0, wrong_answers = 0)
+            logged_user = User(key_name = user.nickname(), correct_answers = 0, wrong_answers = 0, author = user.nickname())
             logged_user.put()
             
             self.response.headers['Content-Type'] = 'text/html'
             user_id = user.nickname()
 
         else:
-        
             self.redirect(users.create_login_url(self.request.uri))
 
         template_values = {}			
@@ -228,19 +232,44 @@ class MainPage(webapp2.RequestHandler):
 class PlayerStats(webapp2.RequestHandler):
     
     def get(self,usernick):
-    
         
-        self.response.out.write('stuff')
-        
+        if usernick == '':
+            self.redirect( '/' )
+            return
     
+        c_user = get_user_entity(usernick)
+        
+        if usernick == 'me':
+            c_user = get_current_user_entity()
+        
+        if c_user is None:
+            self.response.out.write('Unknown user')
+            return
+        
+        self.response.out.write(c_user.author)
+        
+        self.response.out.write(' correct answers -> ' + str(c_user.correct_answers) )
+        self.response.out.write(' wrong answers -> ' + str(c_user.wrong_answers)  )
+    
+        template_values = {
+                           'correct_answers' : c_user.correct_answers,
+                           'wrong_answers' : c_user.wrong_answers
+                           }
+        
+        #template = jinja_environment.get_template('index.html')
+        #self.response.out.write(template.render(template_values))
+        
+
+class Login(webapp2.RequestHandler):
+            
+    def get(self):
+        self.redirect( users.create_login_url('/') )
             
 class Logout(webapp2.RequestHandler):
     
     def get(self):        
-        
-        user = users.get_current_user()
-        
-        if user:
+    
+        if users.get_current_user() is not None:
             self.redirect(users.create_logout_url('/'))
         else:
             self.redirect(users.create_login_url('/'))
@@ -250,11 +279,12 @@ class Logout(webapp2.RequestHandler):
         #self.redirect(users.create_logout_url('/'))
 
 
-app = webapp2.WSGIApplication([('/',       MainPage),
+app = webapp2.WSGIApplication([('/', MainPage),
                                ('/logout', Logout),
+                               ('/login', Login),
                                ('/train',  QueryTrainer),
                                ('/play/random', PlayRandom),
-                               ('/stats/player/*', PlayerStats)
+                               (r'/stats/player/(.*)', PlayerStats)
                                ],
                               debug=True)
 							  
