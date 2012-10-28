@@ -1,15 +1,100 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<title>NeverEndingQuery</title>
-		<link type="text/css" rel="stylesheet" href="/stylesheets/style.css" />
-	</head>
-	<body>
-		{{user_id}}
-	<form action="/sign" method="post">
-		<div><textarea name="content" rows="3" cols="60"></textarea></div>
-		<div><input type="submit" value="Sign Guestbook 2"></div>
-	</form>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title> Never Ending Query </title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
 
-	</body>
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="#">Never Ending Query</a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav">
+                            <li class="active"><a href="#">Home</a></li>
+                            <li><a href="#game">Game</a></li>
+                            <li><a href="#about">About</a></li>
+                            <li><a href="#contact">Contact</a></li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">Action</a></li>
+                                    <li class="divider"></li>
+                                    <li class="nav-header">Nav header</li>
+                                    <li><a href="#">Separated link</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div><!--/.nav-collapse -->
+                </div>
+            </div>
+        </div>
+
+    <div class="container-fluid">
+
+	    <div class="row-fluid">
+			<div class="span6">
+				<ul class="nav nav-list bs-docs-sidenav">
+					<li class="active"><a href="#categories"><i class="icon-chevron-right"></i> Categories </a></li>
+					<li><a href="#challenges"><i class="icon-chevron-right"></i> Challenges </a></li>
+					<li><a href="#stats"><i class="icon-chevron-right"></i> Stats </a></li>
+					<li><a href="#ranking"><i class="icon-chevron-right"></i> Ranking </a></li>
+					<li><a href="train"><i class="icon-chevron-right"></i> Submit </a></li>
+				</ul>
+			</div>
+
+			<div id="categories" class="span6">
+				<ul class="nav nav-list bs-docs-sidenav">
+					<li class="active"><a>Start an endless game</a></li>
+					<li><a href="#general"><i class="icon-chevron-right"></i> General</a></li>
+					<li><a href="#cat1"><i class="icon-chevron-right"></i> Cat1 </a></li>
+					<li><a href="#cat2"><i class="icon-chevron-right"></i> Cat2 </a></li>
+					<li><a href="#cat3"><i class="icon-chevron-right"></i> Cat3 </a></li>
+					<li><a href="#cat4"><i class="icon-chevron-right"></i> Cat4 </a></li>
+				</ul>
+			</div>
+
+
+		</div>
+
+
+            <hr class="span11">
+
+            <footer class="span11">
+                <p>&copy; Never Ending Query 2012</p>
+            </footer>
+
+        </div> <!-- /container -->
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.8.2.min.js"><\/script>')</script>
+
+        <script src="js/vendor/bootstrap.min.js"></script>
+
+        <script src="js/plugins.js"></script>
+        <script src="js/main.js"></script>
+    </body>
 </html>

@@ -29,7 +29,6 @@ from google.appengine.api import users
 
 from user import User
 
-
 class MainPage(webapp2.RequestHandler):
     
     def get(self):
