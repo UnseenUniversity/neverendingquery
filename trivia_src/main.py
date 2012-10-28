@@ -126,7 +126,7 @@ class QueryTrainer(webapp2.RequestHandler):
         fake_ans = []
         while i <= 4:
             ans = self.escape("answer"+str(i))
-            new_query.fake_answers.append(ans)
+            new_query.fake_answers.append( ans )
             i +=1
             
         new_query.put()
@@ -160,16 +160,7 @@ class PlayRandom( webapp2.RequestHandler ):
                 break
         
             
-        answers = [ query.answer ]
-    
-        print answers
-        
-        i = 0
-        len_ = len( query.fake_answers )
-        
-        while i < len_:
-            answers.append(query.fake_answers)
-            i+=1
+        answers = [ query.answer ] + query.fake_answers
         
         random.shuffle(answers)
             
@@ -195,7 +186,7 @@ class PlayRandom( webapp2.RequestHandler ):
         query = memcache.get( fake_q_no )
         
         if query is None:
-            print 'You took to long to answer, error'
+            print 'You took too long to answer, error'
         
         if player_answer == query.answer:
             c_user.correct_answers += 1
@@ -234,7 +225,14 @@ class MainPage(webapp2.RequestHandler):
         template = jinja_environment.get_template('index.html')
         self.response.out.write(template.render(template_values))			
 			
-            
+class PlayerStats(webapp2.RequestHandler):
+    
+    def get(self,usernick):
+    
+        
+        self.response.out.write('stuff')
+        
+    
             
 class Logout(webapp2.RequestHandler):
     
@@ -255,8 +253,8 @@ class Logout(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([('/',       MainPage),
                                ('/logout', Logout),
                                ('/train',  QueryTrainer),
-                               ('/play/random', PlayRandom)
-                               #('/stats/player/*', PlayerStats)
+                               ('/play/random', PlayRandom),
+                               ('/stats/player/*', PlayerStats)
                                ],
                               debug=True)
 							  
