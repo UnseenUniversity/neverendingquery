@@ -18,16 +18,19 @@ import webapp2
 import jinja2
 import os
 import cgi
+import random
 
 jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
 from sets import Set
 
+from google.appengine.api import memcache
 from google.appengine.api import users
 from google.appengine.ext import db
 
-#from appengine_utilities import *
+#from webapp2_extras import sessions
+
 
 from user import *
 from query import *
@@ -55,6 +58,7 @@ def increase_entity_counter( entity_name ):
     Counter.put()
 
 def get_user_entity():
+    
     c_user = User.get( db.Key.from_path('User', users.get_current_user().nickname() ) )
     return c_user
         
@@ -66,6 +70,15 @@ def user_init( user ):
             
     return user
 
+def get_number_of_queries():
+
+    Counter = memcache.get("q_no");
+    if Counter is None:
+        Counter = EntityCounter.get( db.Key.from_path('EntityCounter','Query') )
+        if Counter is None:
+            return 0
+    
+    return Counter.counter
 
 class QueryTrainer(webapp2.RequestHandler):
 
@@ -101,8 +114,10 @@ class QueryTrainer(webapp2.RequestHandler):
         db.run_in_transaction( increase_entity_counter, 'Query' )
         q_no = EntityCounter.get( db.Key.from_path('EntityCounter','Query') ).counter
  
-        ans = self.escape("answer1")    
-        new_query = Query( key_name = str(q_no), text = question, answer = ans )
+ 
+        ans = self.escape("answer1")
+ 
+        new_query = Query( key_name = str(q_no), text = question, answer = ans, fake_answers = [] )
         
         category = self.escape("category")
         if category is not None:
@@ -112,11 +127,12 @@ class QueryTrainer(webapp2.RequestHandler):
         if tags is not None:    
             words = tags.split(';')
             new_query.tags = words
-    
+        
         i = 2
         fake_ans = []
-        while i < 4:
+        while i <= 4:
             ans = self.escape("answer"+str(i))
+            print ans + "\n"
             new_query.fake_answers.append(ans)
             i +=1
             
@@ -127,14 +143,43 @@ class QueryTrainer(webapp2.RequestHandler):
         c_user.put()
     
         self.redirect('/train')
-   
+
+class PlayRandom( webapp2.RequestHandler ):
+    
+    def get(self):
+    
+        user = users.get_current_user()
+        
+        if user is None:
+            self.redirect(users.create_login_url(self.request.uri))
+
+            
+        query_count = get_number_of_queries()
+
+        q_no = str( random.randint(0,query_count) )
+        
+        query = memcache.get("q_" + q_no ) 
+        
+        if query is None:
+            query = Query.get( db.Key.from_path('Query', q_no ) )
+            memcache.set("q_" + q_no, query )
+        
+        self.response.out.write(query.text+"\n")
+        
+        ans = query.answer
+        
+        self.response.out.write("something ->" + query.fake_answers[0])
+        
+        template_values = { 'query':query.text }
+            
+
+
     
 class MainPage(webapp2.RequestHandler):
     
     def get(self):
         
         user = users.get_current_user()
-        
         if user:
             logged_user = User(key_name = user.nickname())
             logged_user.put()
@@ -172,7 +217,8 @@ class Logout(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([('/',       MainPage),
                                ('/logout', Logout),
-                               ('/train',  QueryTrainer)
+                               ('/train',  QueryTrainer),
+                               ('/play/random', PlayRandom)
                                ],
                               debug=True)
 							  
