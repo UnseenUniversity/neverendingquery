@@ -36,11 +36,6 @@ from user import *
 from query import *
 
 
-def get_user_entry():
-    user=users.get_current_user()
-    c_user=User.get(db.Key.from_path('User_data' ,user.nickname() ))
-    return (user,c_data)
-
 def get_value( object_type, key ):
     return db.Key.from_path(object_type,key);
 
@@ -88,6 +83,7 @@ class QueryTrainer(webapp2.RequestHandler):
 
     def escape( self, field ):
         return cgi.escape( self.request.get(field) )
+
     
     def get(self):
         
@@ -130,7 +126,6 @@ class QueryTrainer(webapp2.RequestHandler):
         fake_ans = []
         while i <= 4:
             ans = self.escape("answer"+str(i))
-            print ans + "\n"
             new_query.fake_answers.append(ans)
             i +=1
             
@@ -146,31 +141,71 @@ class PlayRandom( webapp2.RequestHandler ):
     
     def get(self):
     
-        user = users.get_current_user()
+        self.check_user()
         
-        if user is None:
-            self.redirect(users.create_login_url(self.request.uri))
-
-            
         query_count = get_number_of_queries()
 
         q_no = str( random.randint(0,query_count) )
         
-        query = memcache.get("q_" + q_no ) 
+        
+        while True:
+            fake_q_no = str( random.randint(0,66666) )   # generate random number to obfuscate the q_no
+            query = memcache.get("q_" + fake_q_no )
+            
+            if query is None:
+                query = Query.get( db.Key.from_path('Query', q_no ) ) # retrieve the real query
+                memcache.set(fake_q_no, query, time = 120 )
+                break
+        
+        
+        answers = [ query.answer ]
+    
+        i = 0
+        len_ = len( query.fake_answers )
+        
+        while i < len_:
+            answers.append(query.fake_answers)
+            i+=1
+        
+        random.shuffle(answers)
+            
+        template_values = { 'query'   : query.text, 
+                            'answers' : answers,
+                            'q_id'    : fake_q_no 
+                        }
+        
+        template = jinja_environment.get_template('random.html')
+        self.response.out.write(template.render(template_values))    
+            
+    def post(self):
+        
+        c_user = get_user_entity()
+        
+        if c_user is None:
+            return
+        
+        player_answer = self.escape("answer")
+        fake_q_no     = self.escape("q_id")
+        
+        query = memcache.get( fake_q_no )
         
         if query is None:
-            query = Query.get( db.Key.from_path('Query', q_no ) )
-            memcache.set("q_" + q_no, query )
+            print 'You took to long to answer, error'
         
-        self.response.out.write(query.text+"\n")
+        if player_answer == query.answer:
+            c_user.correct_answers += 1
+        else:
+            c_user.wrong_answers += 1
         
-        ans = query.answer
         
-        self.response.out.write("something ->" + query.fake_answers[0])
         
-        template_values = { 'query':query.text }
-            
+    def check_user(self):
+        user = users.get_current_user()
+        if user is None:
+            self.redirect( user.create_login_url(self.request.uri) )
 
+    def escape( self, field ):
+        return cgi.escape( self.request.get(field) )
 
     
 class MainPage(webapp2.RequestHandler):
@@ -179,7 +214,7 @@ class MainPage(webapp2.RequestHandler):
         
         user = users.get_current_user()
         if user:
-            logged_user = User(key_name = user.nickname())
+            logged_user = User(key_name = user.nickname(), correct_answers = 0, wrong_answers = 0)
             logged_user.put()
             
             self.response.headers['Content-Type'] = 'text/html'
@@ -206,7 +241,6 @@ class Logout(webapp2.RequestHandler):
             self.redirect(users.create_logout_url('/'))
         else:
             self.redirect(users.create_login_url('/'))
-        
         #if user:
          #   self.redirect(users.create_logout_url(self.request.uri))
         #else:

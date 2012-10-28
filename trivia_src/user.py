@@ -11,3 +11,6 @@ class User(db.Expando):
 
     questions = db.StringListProperty()
     
+    correct_answers = db.IntegerProperty()
+    wrong_asnwers   = db.IntegerProperty()
+    
