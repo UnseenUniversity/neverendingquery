@@ -36,6 +36,8 @@ class MainPage(webapp2.RequestHandler):
         
         user = users.get_current_user()
         
+        user_id = 'Undefined'
+        
         if user:
             logged_user = User(author = user.nickname(),
                                email  = 'some_email')
@@ -53,8 +55,27 @@ class MainPage(webapp2.RequestHandler):
         template = jinja_environment.get_template('index.html')
         self.response.out.write(template.render(template_values))			
 			
+            
+            
+class Logout(webapp2.RequestHandler):
+    
+    def get(self):        
+        
+        user = users.get_current_user()
+        
+        if user:
+            self.redirect(users.create_logout_url('/'))
+        else:
+            self.redirect(users.create_login_url('/'))
+        
+        #if user:
+         #   self.redirect(users.create_logout_url(self.request.uri))
+        #else:
+        #self.redirect(users.create_logout_url('/'))
 
-app = webapp2.WSGIApplication([('/', MainPage)],
+
+app = webapp2.WSGIApplication([('/', MainPage),
+                               ('/logout', Logout)],
                               debug=True)
 							  
 
