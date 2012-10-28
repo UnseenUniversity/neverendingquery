@@ -9,4 +9,5 @@ class User(db.Expando):
     author = db.StringProperty()
     email  = db.StringProperty()
 
+    questions = db.StringListProperty()
     
