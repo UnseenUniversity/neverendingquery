@@ -32,12 +32,8 @@ from google.appengine.ext import db
 #from webapp2_extras import sessions
 
 
-<<<<<<< HEAD
-class MainPage(webapp2.RequestHandler):
-=======
 from user import *
 from query import *
-
 
 
 def get_user_entry():
@@ -92,8 +88,6 @@ class QueryTrainer(webapp2.RequestHandler):
 
     def escape( self, field ):
         return cgi.escape( self.request.get(field) )
-
->>>>>>> b03fa5e3fd1282b33c1644ae87ba8b6576782e33
     
     def get(self):
         
