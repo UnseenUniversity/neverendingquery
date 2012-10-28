@@ -145,8 +145,10 @@ class PlayRandom( webapp2.RequestHandler ):
         
         query_count = get_number_of_queries()
 
-        q_no = str( random.randint(0,query_count) )
+        q_no = str( random.randint(1,query_count-1) )
         
+        print query_count-1
+        print q_no
         
         while True:
             fake_q_no = str( random.randint(0,66666) )   # generate random number to obfuscate the q_no
@@ -157,9 +159,11 @@ class PlayRandom( webapp2.RequestHandler ):
                 memcache.set(fake_q_no, query, time = 120 )
                 break
         
-        
+            
         answers = [ query.answer ]
     
+        print answers
+        
         i = 0
         len_ = len( query.fake_answers )
         
@@ -174,8 +178,9 @@ class PlayRandom( webapp2.RequestHandler ):
                             'q_id'    : fake_q_no 
                         }
         
-        template = jinja_environment.get_template('random.html')
-        self.response.out.write(template.render(template_values))    
+        self.response.out.write(str(answers))
+        #template = jinja_environment.get_template('random.html')
+        #self.response.out.write(template.render(template_values))    
             
     def post(self):
         
@@ -251,6 +256,7 @@ app = webapp2.WSGIApplication([('/',       MainPage),
                                ('/logout', Logout),
                                ('/train',  QueryTrainer),
                                ('/play/random', PlayRandom)
+                               #('/stats/player/*', PlayerStats)
                                ],
                               debug=True)
 							  
